@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>金の斧 コンビニ編</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{height:100%;overflow:hidden;font-family:"Hiragino Maru Gothic ProN","Rounded Mplus 1c","Noto Sans JP",sans-serif;color:#13322c;
+  background:linear-gradient(#bfe9df 0%,#7fd1c3 45%,#2e7d6f 100%)}
+button{font-family:inherit;border:0;cursor:pointer}
+.scr{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px}
+.scr.on{display:flex}
+.btn{background:linear-gradient(#ffe48a,#f5b82e);color:#4a2d00;font-weight:900;font-size:19px;padding:13px 28px;border-radius:999px;box-shadow:0 4px 0 #a06d00,0 0 18px rgba(255,220,100,.6)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #a06d00}
+.btn.sub{background:#fff;color:#2e7d6f;box-shadow:0 3px 0 #1d5a4f;font-size:16px;padding:10px 20px}
+h1{font-size:clamp(34px,10vw,64px);font-weight:900;color:#fff;text-align:center;line-height:1.15;text-shadow:0 3px 0 #1d5a4f,0 0 20px rgba(255,230,140,.8)}
+h1 small{display:block;font-size:.42em;color:#ffe48a;letter-spacing:.15em}
+.note{font-size:14px;color:#13322c;text-align:center;line-height:1.7;background:rgba(255,255,255,.6);border-radius:14px;padding:10px 14px;max-width:480px}
+.fine{font-size:11px;color:#1d4a42;text-align:center;line-height:1.5;max-width:520px;opacity:.85}
+/* 泉と女神 */
+.pond{position:relative;width:min(80vw,320px);height:110px}
+.pond::before{content:"";position:absolute;left:0;right:0;bottom:0;height:70px;border-radius:50%;background:radial-gradient(ellipse at 50% 40%,#e6fffb,#58c4b4 55%,#1f6e62);box-shadow:inset 0 -8px 20px rgba(0,0,0,.25)}
+.ripple{position:absolute;left:50%;bottom:28px;width:40px;height:14px;margin-left:-20px;border:2px solid rgba(255,255,255,.8);border-radius:50%;animation:rip 2.4s infinite}
+.ripple.b{animation-delay:1.2s}
+@keyframes rip{0%{transform:scale(.4);opacity:1}100%{transform:scale(4);opacity:0}}
+.goddess{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);font-size:76px;filter:drop-shadow(0 0 16px #fff6c0);animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-8px)}}
+/* 問題 */
+#q{justify-content:flex-start;padding-top:12px;gap:10px}
+#qHead{width:100%;max-width:560px;display:flex;justify-content:space-between;align-items:center;font-weight:900}
+#qHead .kcal{background:#fff;border-radius:999px;padding:4px 12px;color:#c2410c}
+#say{background:#fffdf3;border:3px solid #e9c46a;border-radius:18px;padding:10px 14px;max-width:560px;width:100%;font-size:16px;line-height:1.6;font-weight:700;text-align:center;position:relative}
+#say b{color:#c2410c}
+#cards{display:flex;flex-direction:column;gap:10px;width:100%;max-width:560px}
+@media (orientation:landscape){ #cards{flex-direction:row} }
+.card{flex:1;background:#fff;border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 0 rgba(0,0,0,.15);border:3px solid transparent;text-align:left;transition:transform .2s}
+.card:active{transform:scale(.98)}
+.card .ic{font-size:40px}
+.card .st{display:inline-block;font-size:12px;font-weight:900;color:#fff;border-radius:6px;padding:2px 8px;margin-bottom:3px}
+.card .nm{font-size:15px;font-weight:800;line-height:1.35}
+.card .pr{margin-left:auto;text-align:right;font-weight:900;font-size:18px;min-width:5.2em;opacity:0;transition:opacity .3s}
+.card .pr small{display:block;font-size:12px;color:#64748b;font-weight:700}
+.card.show .pr{opacity:1}
+.card.best{border-color:#f5b82e;box-shadow:0 0 0 4px rgba(245,184,46,.35),0 4px 0 rgba(0,0,0,.15)}
+.card.wrong{opacity:.55}
+.card.pick{border-color:#2e7d6f}
+.s7{background:#e8590c}.sL{background:#1c7ed6}.sF{background:#2f9e44}
+#verdict{font-size:28px;font-weight:900;min-height:1.3em;text-align:center}
+#verdict.ok{color:#fff;text-shadow:0 2px 0 #a06d00,0 0 14px #ffe48a}
+#verdict.ng{color:#7f1d1d}
+#why{font-size:13px;color:#13322c;background:rgba(255,255,255,.7);border-radius:12px;padding:6px 12px;max-width:560px;text-align:center;display:none}
+#nextB{display:none}
+/* 結果 */
+#tray{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:520px;background:#fff;border-radius:20px;padding:14px;min-height:80px;box-shadow:0 6px 0 rgba(0,0,0,.15)}
+#tray span{font-size:34px}
+#total{font-size:56px;font-weight:900;color:#fff;text-shadow:0 3px 0 #a06d00,0 0 18px #ffe48a;line-height:1}
+#total small{font-size:22px}
+#rank{font-size:20px;font-weight:900;background:#fff;border-radius:999px;padding:6px 18px}
+.fly{position:fixed;font-size:44px;z-index:30;pointer-events:none;transition:all .7s cubic-bezier(.5,-0.3,.6,1)}
+</style>
+</head>
+<body>
+
+<section class="scr on" id="title">
+  <h1><small>泉の女神とコンビニ</small>金の斧<br>コンビニ編</h1>
+  <div class="pond"><div class="ripple"></div><div class="ripple b"></div><div class="goddess">🧚‍♀️</div></div>
+  <p class="note">倹約家のあなたは、いつも<b>いちばん安い</b>ものを買います。<br>泉に落としたのは、セブン・ローソン・ファミマのどれ？<br>正直に答えれば3つともあなたのもの。<br>5問で集めた<b>カロリーの合計</b>が「今日のご飯」です。</p>
+  <button class="btn" id="go">泉へ行く</button>
+  <p class="fine" id="best"></p>
+</section>
+
+<section class="scr" id="q">
+  <div id="qHead"><span id="qn">第1問 / 5</span><span class="kcal" id="kc">🍽 0 kcal</span></div>
+  <div class="pond" style="height:96px"><div class="ripple"></div><div class="ripple b"></div><div class="goddess" id="gd" style="font-size:60px">🧚‍♀️</div></div>
+  <div id="say"></div>
+  <div id="cards"></div>
+  <div id="verdict"></div>
+  <div id="why"></div>
+  <button class="btn" id="nextB">つぎへ</button>
+</section>
+
+<section class="scr" id="res">
+  <h2 style="color:#fff;text-shadow:0 2px 0 #1d5a4f;font-size:24px">今日のご飯</h2>
+  <div id="tray"></div>
+  <div id="total">0<small> kcal</small></div>
+  <div id="rank"></div>
+  <p class="note" id="resN" style="font-size:13px"></p>
+  <div style="display:flex;gap:10px"><button class="btn" id="again">もう一回</button><button class="btn sub" id="toTop">タイトルへ</button></div>
+  <p class="fine">価格は各社公式サイトの税込通常価格（2026年11月に確認）。地域・店舗・時期で異なる場合があります。</p>
+</section>
+
+<script>
+const $ = id => document.getElementById(id);
+const R = Math.random;
+function show(id){ document.querySelectorAll('.scr').forEach(s => s.classList.toggle('on', s.id === id)); }
+const STORE = {s7:'セブン‐イレブン', sL:'ローソン', sF:'ファミリーマート'};
+
+// ===== 問題（各社公式サイトの税込通常価格・熱量）=====
+const Q = [
+  {cat:'鮭おにぎり', ic:'🍙', items:[
+    {s:'s7', n:'手巻おにぎり 炭火焼紅しゃけ', p:232.20, k:174},
+    {s:'sL', n:'手巻おにぎり 炙り熟成紅鮭', p:211, k:174},
+    {s:'sF', n:'手巻 紅しゃけ', p:235, k:170}]},
+  {cat:'ツナマヨおにぎり', ic:'🍙', items:[
+    {s:'s7', n:'手巻おにぎり ツナマヨネーズ', p:196.56, k:258},
+    {s:'sL', n:'手巻おにぎり シーチキン®マヨネーズ', p:171, k:226},
+    {s:'sF', n:'手巻 シーチキン®マヨネーズ', p:198, k:219}]},
+  {cat:'フライドチキン', ic:'🍗', items:[
+    {s:'s7', n:'ななチキ', p:250.56, k:173},
+    {s:'sL', n:'Lチキ レギュラー', p:248, k:255},
+    {s:'sF', n:'ファミチキ', p:248, k:251.7}]},
+  {cat:'肉まん', ic:'🥟', items:[
+    {s:'s7', n:'ほかほかごろっと肉まん', p:168.48, k:188},
+    {s:'sL', n:'肉まん', p:198, k:230},
+    {s:'sF', n:'じゅわっとジューシー本格肉まん', p:180, k:210}]},
+  {cat:'あんまん', ic:'🥮', items:[
+    {s:'s7', n:'ほかほかとろっと濃厚ごまあんまん', p:160.92, k:240},
+    {s:'sL', n:'ごまあんまん', p:168, k:226},
+    {s:'sF', n:'こしあんまん（ごま風味）', p:160, k:216}]},
+  {cat:'アメリカンドッグ', ic:'🌭', items:[
+    {s:'s7', n:'アメリカンドッグ', p:150.12, k:337},
+    {s:'sL', n:'ジャンボアメリカンドッグ', p:148, k:300},
+    {s:'sF', n:'アメリカンドッグ', p:150, k:335}]},
+  {cat:'からあげ', ic:'🍗', items:[
+    {s:'s7', n:'からあげ棒', p:198.72, k:190},
+    {s:'sL', n:'からあげクン レギュラー（5個）', p:288, k:226},
+    {s:'sF', n:'ファミから（醤油）1個', p:108, k:94.6}]},
+  {cat:'フランクフルト', ic:'🌭', items:[
+    {s:'s7', n:'ＢＩＧポークフランク', p:213.84, k:358},
+    {s:'sL', n:'ジャイアントポークフランク', p:208, k:290},
+    {s:'sF', n:'ジャンボフランク', p:198, k:256}]},
+];
+// いちばん安いもの：値段が同じなら、カロリーが多い（＝量が多くてお得な）ほう
+function cheapest(items){
+  return items.slice().sort((a, b) => a.p - b.p || b.k - a.k)[0];
+}
+const yen = p => (Number.isInteger(p) ? p : p.toFixed(2)) + '円';
+
+// ===== 音 =====
+let AC = null;
+function tone(f, d, type='triangle', v=.15, t0=0){ try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + t0;
+  o.type = type; o.frequency.setValueAtTime(f, t); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0005, t + d); o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + d + .05); } catch(e){} }
+const sOk = () => [784, 988, 1175, 1568].forEach((f, i) => tone(f, .35, 'triangle', .14, i * .08));
+const sNg = () => { tone(220, .4, 'sawtooth', .1); tone(160, .5, 'sawtooth', .1, .15); };
+const sSplash = () => { tone(300, .2, 'sine', .1); tone(180, .3, 'sine', .08, .05); };
+
+// ===== 進行 =====
+let order = [], qi = 0, total = 0, tray = [], correct = 0;
+const store = { get(k, d){ try { const v = localStorage.getItem('ga_' + k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } }, set(k, v){ try { localStorage.setItem('ga_' + k, JSON.stringify(v)); } catch(e){} } };
+function showBest(){ const b = store.get('best', 0); $('best').textContent = b ? `さいこう記録：${Math.round(b).toLocaleString()} kcal` : ''; }
+showBest();
+$('go').onclick = start; $('again').onclick = start; $('toTop').onclick = () => { show('title'); showBest(); };
+function start(){
+  order = Q.slice().sort(() => R() - .5).slice(0, 5);
+  qi = 0; total = 0; tray = []; correct = 0; show('q'); ask();
+}
+function ask(){
+  const q = order[qi];
+  $('qn').textContent = `第${qi + 1}問 / ${order.length}`;
+  $('kc').textContent = `🍽 ${Math.round(total).toLocaleString()} kcal`;
+  $('say').innerHTML = `ポチャン…　あなたが泉に落としたのは<br><b>いちばん安い「${q.cat}」</b>ですね？<br>セブンの？ ローソンの？ ファミマの？`;
+  const items = q.items.slice().sort(() => R() - .5);
+  $('cards').innerHTML = items.map((it, i) => `<button class="card" data-i="${i}"><span class="ic">${q.ic}</span>
+    <span><span class="st ${it.s}">${STORE[it.s]}</span><br><span class="nm">${it.n}</span></span>
+    <span class="pr">${yen(it.p)}<small>${it.k}kcal</small></span></button>`).join('');
+  $('cards').querySelectorAll('.card').forEach(b => b.onclick = () => answer(items, +b.dataset.i, b));
+  $('verdict').textContent = ''; $('verdict').className = ''; $('why').style.display = 'none'; $('nextB').style.display = 'none';
+  $('gd').textContent = '🧚‍♀️'; $('cards').dataset.lock = '0'; sSplash();
+}
+function answer(items, i, el){
+  if ($('nextB').style.display === 'block' || $('cards').dataset.lock === '1') return;
+  $('cards').dataset.lock = '1';
+  const q = order[qi], best = cheapest(items), pick = items[i], ok = pick === best;
+  const cards = [...$('cards').querySelectorAll('.card')];
+  cards.forEach((c, j) => { c.classList.add('show'); if (items[j] === best) c.classList.add('best'); else c.classList.add('wrong'); });
+  el.classList.add('pick');
+  const tie = items.filter(it => it.p === best.p).length > 1;
+  if (ok){
+    const got = items.reduce((s, it) => s + it.k, 0); total += got; correct++;
+    tray.push(...items.map(() => q.ic));
+    $('verdict').textContent = '正直者ですね！3つともあげましょう'; $('verdict').className = 'ok'; $('gd').textContent = '😇'; sOk();
+    flyItems(q.ic, 3);
+    countUp(total - got, total);
+  } else {
+    $('verdict').textContent = 'うそつき！どれもあげません'; $('verdict').className = 'ng'; $('gd').textContent = '😠'; sNg();
+  }
+  const diff = items.slice().sort((a, b) => a.p - b.p);
+  $('why').innerHTML = tie
+    ? `${yen(best.p)}で同じ値段！ 同じ値段ならカロリーが多い（量が多い）<b>${STORE[best.s]}</b>のほうがお得、として判定します。`
+    : `いちばん安いのは <b>${STORE[best.s]}</b> の ${yen(best.p)}。2番目との差は <b>${(diff[1].p - diff[0].p).toFixed(2).replace(/\.00$/, '')}円</b>。`;
+  $('why').style.display = 'block';
+  setTimeout(() => { $('nextB').style.display = 'block'; $('nextB').textContent = qi + 1 >= order.length ? '今日のご飯を見る' : 'つぎへ'; $('cards').dataset.lock = '0'; }, 700);
+}
+function flyItems(ic, n){
+  const to = $('kc').getBoundingClientRect(), from = $('gd').getBoundingClientRect();
+  for (let k = 0; k < n; k++){
+    const e = document.createElement('div'); e.className = 'fly'; e.textContent = ic;
+    e.style.left = (from.left + k * 20) + 'px'; e.style.top = from.top + 'px'; document.body.appendChild(e);
+    setTimeout(() => { e.style.left = (to.left + 20) + 'px'; e.style.top = to.top + 'px'; e.style.transform = 'scale(.4)'; e.style.opacity = .3; }, 60 + k * 120);
+    setTimeout(() => e.remove(), 1000 + k * 120);
+  }
+}
+function countUp(a, b){
+  const t0 = performance.now(), step = () => { const k = Math.min(1, (performance.now() - t0) / 800); $('kc').textContent = `🍽 ${Math.round(a + (b - a) * k).toLocaleString()} kcal`; if (k < 1) requestAnimationFrame(step); };
+  step();
+}
+$('nextB').onclick = () => { qi++; if (qi >= order.length) finish(); else ask(); };
+function finish(){
+  show('res');
+  $('tray').innerHTML = tray.length ? tray.map(t => `<span>${t}</span>`).join('') : '<span style="font-size:16px;color:#64748b">なにもない…</span>';
+  const t0 = performance.now(), step = () => { const k = Math.min(1, (performance.now() - t0) / 1200); $('total').innerHTML = `${Math.round(total * k).toLocaleString()}<small> kcal</small>`; if (k < 1) requestAnimationFrame(step); };
+  step();
+  const r = total === 0 ? '断食の日' : total < 800 ? 'ちょっと少なめ' : total < 1600 ? '腹八分目' : total < 2600 ? '満腹' : total < 3300 ? '食べすぎ注意' : '横綱級';
+  $('rank').textContent = `${correct} / ${order.length}問 正解　｜　${r}`;
+  $('resN').textContent = total === 0 ? '女神「正直に答えれば、ご飯がもらえたのに…」' : `女神「正直なあなたに、${tray.length}品のご飯を授けました」`;
+  if (total > store.get('best', 0)) store.set('best', total);
+  if (correct === order.length) sOk();
+}
+</script>
+</body>
+</html>
